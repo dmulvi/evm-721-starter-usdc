@@ -18,6 +18,7 @@ contract Evm721StarterUSDC is ERC721, Ownable {
     IERC20 public usdc;
     address _crossmintAddress; // Mumbai: 0xDa30ee0788276c093e686780C25f6C9431027234;
     uint256 public nonce;
+    string public clientId;
 
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 price = 10 * 10 ** 6; // 10 USDC (because usdc is a 6 decimal ERC20 token)
@@ -28,9 +29,10 @@ contract Evm721StarterUSDC is ERC721, Ownable {
     bytes32 public constant TX_TYPEHASH = keccak256("Transaction(address from,uint256 nonce)");
     bytes32 public immutable DOMAIN_SEPARATOR;
 
-    constructor(address _usdcAddress, address _crossmint) payable ERC721("EVM 721 Starter USDC", "USDCXMPL") {
+    constructor(address _usdcAddress, address _crossmint, string memory _clientId) payable ERC721("EVM 721 Starter USDC", "USDCXMPL") {
         usdc = IERC20(_usdcAddress);
         _crossmintAddress = _crossmint;
+        clientId = _clientId;
 
         uint256 chainId;
         assembly {
@@ -44,6 +46,7 @@ contract Evm721StarterUSDC is ERC721, Ownable {
             address(this)
         ));
     }
+
 
     // ERRORS & MODIFIERS
 
@@ -76,6 +79,12 @@ contract Evm721StarterUSDC is ERC721, Ownable {
         _;
     }
 
+    modifier isValidClientId(string memory _clientId) {
+        require(keccak256(abi.encodePacked(_clientId)) == keccak256(abi.encodePacked(clientId)), "Invalid client ID");
+        _;
+    }
+
+
     // PUBLIC
 
     function mintWithPrice(address _to, uint256 _price, uint256 _quantity)
@@ -86,6 +95,17 @@ contract Evm721StarterUSDC is ERC721, Ownable {
         usdc.transferFrom(msg.sender, address(this), _price * _quantity);
         mintInternal(_to, _quantity);
     }
+
+    function mintWithPriceAndClientId(address _to, uint256 _price, uint256 _quantity, string memory _clientId)
+        external
+        isCrossmint
+        isAvailable(_quantity)
+        isValidClientId(_clientId)
+    {
+        usdc.transferFrom(msg.sender, address(this), _price * _quantity);
+        mintInternal(_to, _quantity);
+    }
+
 
     function mintWithPriceAndSignature(
         address _to,
@@ -136,6 +156,10 @@ contract Evm721StarterUSDC is ERC721, Ownable {
 
     function setCrossMintAddress(address newCrossMintAddress) public onlyOwner {
         _crossmintAddress = newCrossMintAddress;
+    }
+
+    function setClientId(string memory _clientId) external onlyOwner {
+        clientId = _clientId;
     }
 
     function withdraw() public onlyOwner {

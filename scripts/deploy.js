@@ -1,11 +1,13 @@
 const hre = require("hardhat");
 
 async function main() {
-    const Evm721StarterUSDCNFT = await hre.ethers.getContractFactory("Evm721StarterUSDC");
-    const Evm721StarterUSDC = await Evm721StarterUSDCNFT.deploy(
+    const constructorArguments = [
         "0xFEca406dA9727A25E71e732F9961F680059eF1F9",
-        "0xDa30ee0788276c093e686780C25f6C9431027234"
-    );
+        "0xDa30ee0788276c093e686780C25f6C9431027234",
+        "94d85c60-9dcb-4428-adeb-ca88a64dd4c7"
+    ]
+    const Evm721StarterUSDCNFT = await hre.ethers.getContractFactory("Evm721StarterUSDC");
+    const Evm721StarterUSDC = await Evm721StarterUSDCNFT.deploy(...constructorArguments);
 
     await Evm721StarterUSDC.deployed();
 
@@ -14,10 +16,7 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 10000));
     await hre.run("verify:verify", {
         address: Evm721StarterUSDC.address,
-        constructorArguments: [
-            "0xFEca406dA9727A25E71e732F9961F680059eF1F9",
-            "0xDa30ee0788276c093e686780C25f6C9431027234"
-        ]
+        constructorArguments
     });
 }
 
