@@ -17,7 +17,7 @@ module.exports = {
       url: process.env.MUMBAI_RPC_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
-    matic: {
+    /*matic: {
       url: process.env.MAINNET_RPC_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
@@ -30,7 +30,7 @@ module.exports = {
     },
     hardhat: {
       chainId: 31337
-    },
+    },*/
   },
   etherscan: {
     apiKey: {

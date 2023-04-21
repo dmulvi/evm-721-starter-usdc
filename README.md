@@ -50,11 +50,13 @@ changes to
 **Deploy the contract to a testnet**
 
 `npx hardhat run --network goerli scripts/deploy.js`
+`npx hardhat run --network mumbai scripts/deploy.js`
 
 Wait about a minute and then verify the Contract. (You'll need an etherscan API key)
 Note the last parameter is the goerli USDC token contract we are using for this example. You need to pass that as an argument when you verify. If you changed this value in the deploy.js script you'll need to change this command to match what you put there. 
 
-`npx hardhat verify --network goerli "0x__CONTRACT_ADDR_FROM_PREVIOUS_STEP__" "0x98339D8C260052B7ad81c28c16C0b98420f2B46a"`
+`npx hardhat verify --network goerli "0x6f96abdC01e8a28ef3C504af70B638b5E3Ca3dCA__" "0x98339D8C260052B7ad81c28c16C0b98420f2B46a"`
+`npx hardhat --show-stack-traces verify --network mumbai "0x6f96abdC01e8a28ef3C504af70B638b5E3Ca3dCA" "0x98339D8C260052B7ad81c28c16C0b98420f2B46a"`
 
 ---
 
