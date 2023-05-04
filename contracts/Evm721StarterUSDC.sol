@@ -1,37 +1,22 @@
-// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
+import "./Evm721StarterUSDCTokenStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Evm721StarterUSDC is ERC721, Ownable {
-    using Counters for Counters.Counter;
+contract Evm721StarterUSDCImplementation is Evm721StarterUSDCTokenStorage, Ownable {
     using Strings for uint256;
 
     event Mint(uint256 tokenId);
-
-    Counters.Counter internal nextId;
-
-    IERC20 public usdc;
-    address _crossmintAddress; // Mumbai: 0xDa30ee0788276c093e686780C25f6C9431027234;
-    uint256 public nonce;
-    string public clientId;
-
-    uint256 public constant MAX_SUPPLY = 10000;
-    uint256 price = 10 * 10 ** 6; // 10 USDC (because usdc is a 6 decimal ERC20 token)
-    string public baseUri = "https://bafkreifyb5jetemu2qf2pbid7246kvsumzsqim5z3jabr5zrb3fukh35ki.ipfs.nftstorage.link";
 
     // EIP-712 constants
     bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 public constant TX_TYPEHASH = keccak256("Transaction(address from,uint256 nonce)");
     bytes32 public immutable DOMAIN_SEPARATOR;
 
-    constructor(address _usdcAddress, address _crossmint, string memory _clientId) payable ERC721("EVM 721 Starter USDC", "USDCXMPL") {
+    constructor(address _usdcAddress, address _crossmint, string memory _clientId) {
         usdc = IERC20(_usdcAddress);
-        _crossmintAddress = _crossmint;
+        crossmintAddress = _crossmint;
         clientId = _clientId;
 
         uint256 chainId;
@@ -47,7 +32,6 @@ contract Evm721StarterUSDC is ERC721, Ownable {
         ));
     }
 
-
     // ERRORS & MODIFIERS
 
     error NotCrossmint();
@@ -60,7 +44,7 @@ contract Evm721StarterUSDC is ERC721, Ownable {
     }
 
     modifier isCrossmint() {
-        if (msg.sender != _crossmintAddress && msg.sender != owner()) {
+        if (msg.sender != crossmintAddress && msg.sender != owner()) {
             revert NotCrossmint();
         }
         _;
@@ -75,7 +59,7 @@ contract Evm721StarterUSDC is ERC721, Ownable {
 
         address recoveredAddress = ecrecover(digest, uint8(signature[0]), bytes32(signature[1]), bytes32(signature[2]));
 
-        require(recoveredAddress == _crossmintAddress, "Invalid minter signature");
+        require(recoveredAddress == crossmintAddress, "Invalid minter signature");
         _;
     }
 
@@ -83,7 +67,6 @@ contract Evm721StarterUSDC is ERC721, Ownable {
         require(keccak256(abi.encodePacked(_clientId)) == keccak256(abi.encodePacked(clientId)), "Invalid client ID");
         _;
     }
-
 
     // PUBLIC
 
@@ -105,7 +88,6 @@ contract Evm721StarterUSDC is ERC721, Ownable {
         usdc.transferFrom(msg.sender, address(this), _price * _quantity);
         mintInternal(_to, _quantity);
     }
-
 
     function mintWithPriceAndSignature(
         address _to,
