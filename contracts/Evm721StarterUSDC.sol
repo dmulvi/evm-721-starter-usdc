@@ -17,7 +17,7 @@ contract Evm721StarterUSDC is ERC721, Ownable {
 
     IERC20 public usdc;
     uint256 public constant MAX_SUPPLY = 10000;
-    uint256 price = 10 * 10 ** 6; // 10 USDC (because usdc is a 6 decimal ERC20 token)
+    uint256 public price = 10 * 10 ** 6; // 10 USDC (because usdc is a 6 decimal ERC20 token)
     string public baseUri = "https://bafkreifyb5jetemu2qf2pbid7246kvsumzsqim5z3jabr5zrb3fukh35ki.ipfs.nftstorage.link";
 
     constructor(address _usdcAddress) payable ERC721("EVM 721 Starter USDC", "USDCXMPL") {
